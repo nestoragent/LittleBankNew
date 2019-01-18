@@ -19,7 +19,8 @@ import java.util.Map;
 @Slf4j
 public class BankAccountController {
 
-    private static final String VIEW_INDEX = "index.js";
+    private static final String VIEW_INDEX = "index";
+
     @Autowired
     @Qualifier("BankAccountService")
     private BankAccountService bankAccountService;
@@ -32,9 +33,9 @@ public class BankAccountController {
                                @Valid @RequestParam String bic) throws RestException {
         try {
 
-            if (accountNumber == null || accountNumber.equals("")) {
+            if (accountNumber == null || accountNumber.equals(""))
                 return Ajax.emptyResponse();
-            }
+
             return bankAccountService.save(accountNumber, IBAN, bankName, bic);
         } catch (Exception e) {
             log.error("Exception in the create", e);
@@ -42,10 +43,8 @@ public class BankAccountController {
         }
     }
 
-    @RequestMapping(value = "/index", method = {RequestMethod.POST, RequestMethod.GET})
-    public @ResponseBody
-    String index() throws RestException {
-
+    @RequestMapping(value = "/")
+    public String index() {
         return VIEW_INDEX;
     }
 

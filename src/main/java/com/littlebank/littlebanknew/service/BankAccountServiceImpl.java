@@ -1,6 +1,5 @@
 package com.littlebank.littlebanknew.service;
 
-
 import com.littlebank.littlebanknew.entity.BankAccount;
 import com.littlebank.littlebanknew.repository.BankAccountRepository;
 import com.littlebank.littlebanknew.utils.Ajax;
@@ -14,8 +13,12 @@ import java.util.Map;
 @Service("BankAccountService")
 public class BankAccountServiceImpl implements BankAccountService {
 
-    @Autowired
     private BankAccountRepository bankAccountRepository;
+
+    @Autowired
+    public BankAccountServiceImpl(BankAccountRepository repository) {
+        this.bankAccountRepository = repository;
+    }
 
     @Override
     public Map<String, Object> save(String accountNumber, String IBAN, String bankName, String bic) {

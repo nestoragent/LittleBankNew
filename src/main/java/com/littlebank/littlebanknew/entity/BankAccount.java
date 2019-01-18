@@ -13,11 +13,9 @@ import javax.validation.constraints.Size;
  * Created by sbt-velichko-aa on 17.03.17.
  */
 @Data
-@Builder
 @Entity
 @Table(name = "bank_accounts")
-@AllArgsConstructor
-public class BankAccount implements DomainObject {
+public class BankAccount {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,6 +44,9 @@ public class BankAccount implements DomainObject {
     @Column(nullable = false)
     @PositiveOrZero
     private Long bic;
+
+    private BankAccount() {
+    }
 
     public BankAccount(Long accountNumber, String IBAN, String bankName, Long bic) {
         this.accountNumber = accountNumber;

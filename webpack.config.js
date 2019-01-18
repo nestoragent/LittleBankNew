@@ -1,17 +1,14 @@
-var packageJSON = require('./package.json');
-var path = require('path');
 var webpack = require('webpack');
-const autoprefixer = require('autoprefixer');
-const precss = require('precss');
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
-const TransferWebpackPlugin = require('transfer-webpack-plugin');
 
 module.exports = {
-    devtool: 'eval',
-    entry: './index.js',
+    entry: './src/main/js/app.js',
+    devtool: 'sourcemaps',
+    cache: true,
+    mode: 'development',
     output: {
-        path: path.join(__dirname, 'generated'),
-        filename: 'app-bundle.js'
+        path: __dirname,
+        filename: './src/main/resources/static/built/bundle.js'
     },
     resolve: {extensions: ['.js', '.jsx']},
     plugins: [
@@ -49,9 +46,14 @@ module.exports = {
     module: {
         rules: [
             {
-                test: /\.jsx?$/,
-                loader: 'babel-loader',
-                exclude: /node_modules/
+                test: /\.js?$/,
+                exclude: /(node_modules)/,
+                use: [{
+                    loader: 'babel-loader',
+                    options: {
+                        presets: ["@babel/preset-env", "@babel/preset-react"]
+                    }
+                }]
             },
             {
                 test: /\.css$/, use: ['style-loader', 'css-loader']
@@ -105,4 +107,4 @@ module.exports = {
             poll: true
         }
     }
-}
+};

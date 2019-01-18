@@ -1,7 +1,7 @@
 /target/
-/src/main/resources/static/node_modules
-/src/main/resources/static/generated
-/src/main/resources/static/package-lock.json
+/node_modules
+/generated
+/package-lock.json
 !.mvn/wrapper/maven-wrapper.jar
 
 ### STS ###
@@ -26,3 +26,4 @@
 /dist/
 /nbdist/
 /.nb-gradle/
+.mvn/
