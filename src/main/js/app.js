@@ -29,14 +29,24 @@ class App extends React.Component {
                 headers: {'Accept': 'application/schema+json'}
             }).then(schema => {
                 this.schema = schema.entity;
+                this.links = bankAccountCollection.entity._links;
                 return bankAccountCollection;
             });
-        }).done(bankAccountCollection => {
+        }).then(bankAccountCollection => {
+            return bankAccountCollection.entity._embedded.bankAccounts.map(bankAccount =>
+                client({
+                    method: 'GET',
+                    path: bankAccount._links.self.href
+                })
+            );
+        }).then(bankAccountPromises => {
+            return when.all(bankAccountPromises);
+        }).done(bankAccounts => {
             this.setState({
-                bankAccounts: bankAccountCollection.entity._embedded.bankAccounts,
+                bankAccounts: bankAccounts,
                 attributes: Object.keys(this.schema.properties),
                 pageSize: pageSize,
-                links: bankAccountCollection.entity._links
+                links: this.links
             });
         });
     }
@@ -65,6 +75,25 @@ class App extends React.Component {
                 this.onNavigate(response.entity._links.last.href);
             } else {
                 this.onNavigate(response.entity._links.self.href);
+            }
+        });
+    }
+
+    onUpdate(employee, updatedEmployee) {
+        client({
+            method: 'PUT',
+            path: employee.entity._links.self.href,
+            entity: updatedEmployee,
+            headers: {
+                'Content-Type': 'application/json',
+                'If-Match': employee.headers.Etag
+            }
+        }).done(response => {
+            this.loadFromServer(this.state.pageSize);
+        }, response => {
+            if (response.status.code === 412) {
+                alert('DENIED: Unable to update ' +
+                    employee.entity._links.self.href + '. Your copy is stale.');
             }
         });
     }
@@ -267,9 +296,55 @@ class CreateDialog extends React.Component {
             </div>
         )
     }
-
-
 }
+
+class UpdateDialog extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.handleSubmit = this.handleSubmit.bind(this);
+    }
+
+    handleSubmit(e) {
+        e.preventDefault();
+        const updatedBankAccount = {};
+        this.props.attributes.forEach(attribute => {
+            updatedBankAccount[attribute] = ReactDOM.findDOMNode(this.refs[attribute]).value.trim();
+        });
+        this.props.onUpdate(this.props.bankAccount, updatedBankAccount);
+        window.location = "#";
+    }
+
+    render() {
+        const inputs = this.props.attributes.map(attribute =>
+            <p key={this.props.bankAccount.entity[attribute]}>
+                <input type="text" placeholder={attribute}
+                       defaultValue={this.props.bankAccount.entity[attribute]}
+                       ref={attribute} className="field"/>
+            </p>
+        );
+
+        const dialogId = "updateBankAccount-" + this.props.bankAccount.entity._links.self.href;
+
+        return (
+            <div key={this.props.bankAccount.entity._links.self.href}>
+                <a href={"#" + dialogId}>Update</a>
+                <div id={dialogId} className="modalDialog">
+                    <div>
+                        <a href="#" title="Close" className="close">X</a>
+
+                        <h2>Update an bank account</h2>
+
+                        <form>
+                            {inputs}
+                            <button onClick={this.handleSubmit}>Update</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+};
 
 ReactDOM.render(
     <App/>,

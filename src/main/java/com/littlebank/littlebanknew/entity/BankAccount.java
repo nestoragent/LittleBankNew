@@ -1,5 +1,6 @@
 package com.littlebank.littlebanknew.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -44,6 +45,9 @@ public class BankAccount {
     @Column(nullable = false)
     @PositiveOrZero
     private Long bic;
+
+    private @Version @JsonIgnore
+    Long version;
 
     private BankAccount() {
     }
